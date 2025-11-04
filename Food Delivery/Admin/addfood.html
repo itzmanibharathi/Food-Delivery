@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Add Food Item</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Add New Food Item</h1>
+      <a href="Admin.html"><button>Add Food</button></a>
+    </header>
+
+    <section class="card">
+      <form id="foodForm">
+        <label for="foodName">Food Name</label>
+        <input type="text" id="foodName" placeholder="Enter food name" required/>
+<br/>
+        <label for="price">Price</label>
+        <input type="text" id="price" placeholder="Enter price" step="0.01" required/>
+<br/>
+        <label for="hotelName">Hotel/Restaurant Name</label>
+        <input type="text" id="hotelName" placeholder="Enter hotel name" required/>
+<br/>
+        <label for="imageUrl">Image URL</label>
+        <input type="url" id="imageUrl" placeholder="Enter image URL" required/>
+<br/>
+        <button type="submit">Add Food</button>
+      </form>
+      <p id="foodMsg"></p>
+    </section>
+  </main>
+
+
+  <script type="module" src="addFood.js"></script>
+</body>
+</html>

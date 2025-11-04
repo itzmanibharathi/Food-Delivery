@@ -1,0 +1,242 @@
+/* -------------------------
+   Global
+-------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --primary: #ff6b6b;
+  --secondary: #4ecdc4;
+  --bg: #f0f4f8;
+  --card-bg: #ffffff;
+  --text-color: #222;
+  --muted: #6b7280;
+  --radius: 16px;
+  --shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-color);
+}
+
+/* -------------------------
+   Container
+-------------------------- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* -------------------------
+   Header
+-------------------------- */
+header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+header p {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+/* -------------------------
+   Buttons
+-------------------------- */
+button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: linear-gradient(45deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* -------------------------
+   Grid Layout
+-------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* -------------------------
+   Cards
+-------------------------- */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+/* -------------------------
+   Images
+-------------------------- */
+.order-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.order-img:hover {
+  transform: scale(1.05);
+}
+
+/* -------------------------
+   Typography
+-------------------------- */
+h2 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: var(--secondary);
+}
+
+p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* -------------------------
+   Tables
+-------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: var(--secondary);
+  color: white;
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}/* Form Styling */
+.card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* space between each label-input pair */
+}
+
+.card form label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.card form input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.card form button {
+  align-self: flex-start; /* button stays at left side */
+  padding: 10px 18px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.card form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* Optional: Make card smaller and centered */
+.card {
+  max-width: 450px;
+  margin: 0 auto;
+}
+.rating-container input, .rating-container button {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+.rating-container button {
+  cursor: pointer;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+.rating-container button:hover {
+  background-color: #218838;
+}
+
+
+tr:hover {
+  background: #f1f5f9;
+}
+
+.actions button {
+  margin-right: 6px;
+  font-size: 0.85rem;
+}
+
+/* -------------------------
+   Responsive
+-------------------------- */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

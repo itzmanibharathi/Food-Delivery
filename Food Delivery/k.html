@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agile Library Book Borrowing System</title>
+  <style>
+    :root{
+      --bg:#f4f6f9;--card:#ffffff;--muted:#6b7280;--text:#111827;--accent:#2563eb;--accent-2:#16a34a;--warn:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    header{padding:24px 16px;text-align:center}
+    h1{margin:0 0 8px;font-size:28px}
+    .subtitle{color:var(--muted);font-size:14px}.toolbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px auto 0;max-width:980px}
+.toolbar input, .toolbar button, .toolbar select {padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;}
+.toolbar input{min-width:200px}
+.toolbar button{background:var(--accent);color:#fff;border:none;cursor:pointer}
+.toolbar button.secondary{background:#111827;color:#fff}
+.toolbar button:hover{filter:brightness(0.96)}
+
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1200px;margin:16px auto;padding:0 16px 32px}
+@media (max-width: 900px){.board{grid-template-columns:repeat(2,1fr)}}
+@media (max-width: 560px){.board{grid-template-columns:1fr}}
+
+.column{background:var(--card);border-radius:14px;box-shadow:0 10px 20px rgba(0,0,0,.05);padding:14px;display:flex;flex-direction:column;min-height:360px}
+.column h3{margin:2px 6px 10px;font-size:18px;display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:12px;color:#374151;background:#e5e7eb;border-radius:999px;padding:2px 8px}
+
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;min-height:280px}
+
+.card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.card .meta{flex:1}
+.title{font-weight:600}
+.small{font-size:12px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.chip{font-size:11px;border:1px dashed #e5e7eb;border-radius:999px;padding:2px 8px;background:#fff}
+
+.actions{display:flex;gap:6px}
+.btn{border:none;border-radius:10px;padding:8px 10px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.success{background:var(--accent-2);color:#fff}
+.btn.warn{background:var(--warn);color:#fff}
+.btn.ghost{background:#fff;border:1px solid #e5e7eb}
+
+.muted{color:var(--muted)}
+.empty{color:var(--muted);text-align:center;border:2px dashed #e5e7eb;border-radius:12px;padding:16px}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📚 Agile Library Book Borrowing System</h1>
+    <div class="subtitle">Kanban workflow: <b>Available → Reserved → Issued → Returned</b></div><div class="toolbar" id="toolAdd">
+  <input id="titleInput" placeholder="Book title" />
+  <input id="authorInput" placeholder="Author" />
+  <input id="isbnInput" placeholder="Book ID / ISBN (optional)" />
+  <button id="addBtn">Add Book</button>
+  <button id="sampleBtn" class="secondary">Add Sample Books</button>
+  <input id="searchInput" placeholder="Search title / author / borrower" />
+  <select id="filterSelect">
+    <option value="all">All statuses</option>
+    <option value="available">Available</option>
+    <option value="reserved">Reserved</option>
+    <option value="issued">Issued</option>
+    <option value="returned">Returned</option>
+  </select>
+  <button id="clearBtn" class="secondary">Clear Library</button>
+</div>
+
+  </header> <main class="board">
+    <section class="column">
+      <h3>Available <span class="badge" id="count-available">0</span></h3>
+      <ul id="col-available"></ul>
+    </section>
+    <section class="column">
+      <h3>Reserved <span class="badge" id="count-reserved">0</span></h3>
+      <ul id="col-reserved"></ul>
+    </section>
+    <section class="column">
+      <h3>Issued <span class="badge" id="count-issued">0</span></h3>
+      <ul id="col-issued"></ul>
+    </section>
+    <section class="column">
+      <h3>Returned <span class="badge" id="count-returned">0</span></h3>
+      <ul id="col-returned"></ul>
+    </section>
+  </main> <script>
+    // --- Data Layer ---
+    const STORAGE_KEY = 'agile_library_books_v1';
+
+    /** @typedef {{id:string,title:string,author:string,isbn?:string,status:'available'|'reserved'|'issued'|'returned', borrower?:string, dueDate?:string, createdAt:number}} Book */
+
+    /** @type {Book[]} */
+    let books = load();
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(books)); }
+    function load(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ return []; } }
+
+    // --- Helpers ---
+    function uid(){ return Math.random().toString(36).slice(2,10); }
+    function fmtDate(d){ if(!d) return ''; const x=new Date(d); return isNaN(x)?d:x.toISOString().slice(0,10); }
+
+    // --- DOM Refs ---
+    const el = {
+      title: document.getElementById('titleInput'),
+      author: document.getElementById('authorInput'),
+      isbn: document.getElementById('isbnInput'),
+      search: document.getElementById('searchInput'),
+      filter: document.getElementById('filterSelect'),
+      col: {
+        available: document.getElementById('col-available'),
+        reserved: document.getElementById('col-reserved'),
+        issued: document.getElementById('col-issued'),
+        returned: document.getElementById('col-returned'),
+      },
+      count: {
+        available: document.getElementById('count-available'),
+        reserved: document.getElementById('count-reserved'),
+        issued: document.getElementById('count-issued'),
+        returned: document.getElementById('count-returned'),
+      }
+    };
+
+    // --- CRUD ---
+    function addBook({title,author,isbn}){
+      if(!title || !author){ alert('Please provide both Title and Author.'); return; }
+      books.push({id:uid(), title, author, isbn, status:'available', createdAt:Date.now()});
+      save(); render();
+      el.title.value=''; el.author.value=''; el.isbn.value='';
+    }
+
+    function removeBook(id){ books = books.filter(b=>b.id!==id); save(); render(); }
+
+    function updateBook(id, patch){
+      const i = books.findIndex(b=>b.id===id); if(i<0) return;
+      books[i] = {...books[i], ...patch}; save(); render();
+    }
+
+    // --- Status Transitions ---
+    function reserveBook(book){
+      const borrower = prompt('Reserve under student name:','');
+      if(!borrower) return;
+      updateBook(book.id, {status:'reserved', borrower, dueDate: undefined});
+    }
+
+    function issueBook(book){
+      let borrower = book.borrower || prompt('Issue to (student name):','');
+      if(!borrower) return;
+      const due = prompt('Enter due date (YYYY-MM-DD):', new Date(Date.now()+7*86400000).toISOString().slice(0,10));
+      if(!due) return;
+      updateBook(book.id, {status:'issued', borrower, dueDate: due});
+    }
+
+    function returnBook(book){
+      updateBook(book.id, {status:'returned'});
+    }
+
+    function reshelveBook(book){
+      updateBook(book.id, {status:'available', borrower: undefined, dueDate: undefined});
+    }
+
+    // --- Rendering ---
+    function render(){
+      // Filters
+      const q = (el.search.value||'').toLowerCase();
+      const f = el.filter.value; // 'all' | status
+
+      const byStatus = {available:[], reserved:[], issued:[], returned:[]};
+      for(const b of books){
+        const matchText = `${b.title} ${b.author} ${b.borrower||''}`.toLowerCase();
+        if(q && !matchText.includes(q)) continue;
+        if(f!=='all' && b.status!==f) continue;
+        byStatus[b.status].push(b);
+      }
+
+      for(const s of ['available','reserved','issued','returned']){
+        const list = el.col[s];
+        list.innerHTML = '';
+        if(byStatus[s].length===0){
+          const div = document.createElement('div');
+          div.className = 'empty';
+          div.textContent = 'No items';
+          list.appendChild(div);
+        } else {
+          for(const b of byStatus[s]) list.appendChild(renderCard(b));
+        }
+        el.count[s].textContent = String(byStatus[s].length);
+      }
+    }
+
+    function renderCard(b){
+      const li = document.createElement('li');
+      li.className = 'card';
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = `
+        <div class="title">${escapeHtml(b.title)}</div>
+        <div class="small">by ${escapeHtml(b.author)}${b.isbn?` · ID: ${escapeHtml(b.isbn)}`:''}</div>
+        <div class="row">
+          <span class="chip">Status: ${b.status}</span>
+          ${b.borrower?`<span class="chip">Borrower: ${escapeHtml(b.borrower)}</span>`:''}
+          ${b.dueDate?`<span class="chip">Due: ${fmtDate(b.dueDate)}</span>`:''}
+        </div>`;
+
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      // Action buttons depend on status
+      if(b.status==='available'){
+        actions.appendChild(btn('Reserve', 'primary', ()=>reserveBook(b)));
+        actions.appendChild(btn('Issue', 'success', ()=>issueBook(b)));
+      }
+      if(b.status==='reserved'){
+        actions.appendChild(btn('Issue', 'success', ()=>issueBook(b)));
+        actions.appendChild(btn('Cancel', 'ghost', ()=>reshelveBook(b)));
+      }
+      if(b.status==='issued'){
+        actions.appendChild(btn('Return', 'primary', ()=>returnBook(b)));
+      }
+      if(b.status==='returned'){
+        actions.appendChild(btn('Reshelve', 'ghost', ()=>reshelveBook(b)));
+        actions.appendChild(btn('Delete', 'warn', ()=>removeBook(b.id)));
+      }
+
+      li.appendChild(meta);
+      li.appendChild(actions);
+      return li;
+    }
+
+    function btn(label, variant, onClick){
+      const b = document.createElement('button');
+      b.className = `btn ${variant}`;
+      b.textContent = label;
+      b.onclick = onClick;
+      return b;
+    }
+
+    function escapeHtml(str=''){
+      return String(str).replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",
+        ">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+    }
+
+    // --- Event Wiring ---
+    document.getElementById('addBtn').addEventListener('click', ()=>{
+      addBook({title:el.title.value.trim(), author:el.author.value.trim(), isbn:el.isbn.value.trim()});
+    });
+    document.getElementById('sampleBtn').addEventListener('click', ()=>{
+      const samples = [
+        {title:'Clean Code', author:'Robert C. Martin', isbn:'9780132350884'},
+        {title:'Introduction to Algorithms', author:'Cormen et al.', isbn:'9780262033848'},
+        {title:'The Pragmatic Programmer', author:'Andrew Hunt', isbn:'9780201616224'},
+        {title:'Design Patterns', author:'Gamma et al.', isbn:'9780201633610'},
+      ];
+      for(const s of samples) addBook(s);
+    });
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      if(confirm('This will remove ALL books from the board. Continue?')){ books=[]; save(); render(); }
+    });
+    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('filterSelect').addEventListener('change', render);
+
+    // Submit on Enter in any of the add inputs
+    for(const id of ['titleInput','authorInput','isbnInput']){
+      document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('addBtn').click(); });
+    }
+
+    // Initial render
+    render();
+  </script></body>
+</html>

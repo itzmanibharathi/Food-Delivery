@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Food Menu</title>
+    <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <h1>Welcome, <span id="customerName"></span></h1>
+  
+  <h2>Available Foods</h2>
+  <table id="foodTable" border="1" width="100%">
+    <thead>
+      <tr>
+        <th>Select</th>
+        <th>Food Name</th>
+        <th>Type</th>
+        <th>Price</th>
+        <th>Image</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Your Cart</h2>
+  <table id="cartTable" border="1" width="100%">
+    <thead>
+      <tr>
+        <th>Food Name</th>
+        <th>Price</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p><b>Total:</b> $<span id="cartTotal">0.00</span></p>
+  <button id="checkoutBtn">Checkout</button>
+
+  <div id="paymentModal" style="display:none; border:1px solid #ccc; padding:20px;">
+    <p id="payMsg"></p>
+    <button id="cashBtn">Cash on Delivery</button>
+    <button id="onlineBtn">Online Payment</button>
+  </div>
+
+  <script type="module" src="foods.js"></script>
+</body>
+</html>
